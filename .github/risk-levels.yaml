@@ -1,0 +1,14 @@
+high:
+  - "androidx.core:core"
+  - "androidx.activity:activity"
+  - "androidx.lifecycle:lifecycle-runtime"
+  - "androidx.navigation:navigation-fragment"
+medium:
+  - "com.squareup.retrofit2:retrofit"
+  - "androidx.room:room-runtime"
+  - "androidx.work:work-runtime"
+low:
+  - "junit:junit"
+  - "androidx.test.espresso:espresso-core"
+  - "com.google.dagger:dagger"
+  - "org.jetbrains.kotlin:kotlin-stdlib"
