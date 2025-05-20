@@ -4,7 +4,8 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches: [main]
-    paths: ["**/*.gradle*", ".github/dependabot.yml"]
+    paths:
+      - "*.gradle"
 
 jobs:
   label-risk:
