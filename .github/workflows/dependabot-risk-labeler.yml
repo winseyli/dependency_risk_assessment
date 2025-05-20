@@ -20,11 +20,10 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Install dependencies
-        run: pip install pyyaml
+      - name: Install Python dependencies
+        run: pip install requests pyyaml
 
-      - name: Analyze PR and apply risk label
+      - name: Run risk label script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          python .github/scripts/label_risk.py
+        run: python .github/scripts/label_risk.py
