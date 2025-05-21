@@ -3,7 +3,8 @@ name: Label Dependabot PR Risk
 on:
   pull_request:
     types: [opened, synchronize]
-    branches: [main]
+    branches:
+      - main
     paths:
       - "*.gradle"
 
@@ -21,9 +22,11 @@ jobs:
           python-version: 3.x
 
       - name: Install Python dependencies
-        run: pip install requests pyyaml
+        run: pip install requests pyyaml packaging
 
       - name: Run risk label script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: python .github/scripts/label_risk.py
