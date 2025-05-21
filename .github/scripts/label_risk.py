@@ -1,11 +1,11 @@
 import os
 import re
 import yaml
+import json
 import requests
 
 GITHUB_API = "https://api.github.com"
 REPO = os.environ["GITHUB_REPOSITORY"]
-PR_NUMBER = os.environ["GITHUB_REF"].split("/")[-1]
 TOKEN = os.environ["GITHUB_TOKEN"]
 
 headers = {
@@ -13,25 +13,36 @@ headers = {
     "Accept": "application/vnd.github.v3+json",
 }
 
+# Load event payload to get PR number
+event_path = os.environ["GITHUB_EVENT_PATH"]
+with open(event_path, 'r') as f:
+    event_data = json.load(f)
+pr_number = event_data["number"]
+
 # Load risk levels
 with open(".github/risk-levels.yaml", "r") as f:
     risks = yaml.safe_load(f)
 
 # Get PR title
-pr_url = f"{GITHUB_API}/repos/{REPO}/pulls/{PR_NUMBER}"
+pr_url = f"{GITHUB_API}/repos/{REPO}/pulls/{pr_number}"
 pr_data = requests.get(pr_url, headers=headers).json()
-title = pr_data["title"]
 
-# Try to extract dependency name
+if "title" not in pr_data:
+    print(f"Cannot find title in PR response: {pr_data}")
+    exit(1)
+
+title = pr_data["title"]
+print(f"Detected PR title: {title}")
+
+# Parse dependency
 match = re.search(r"Bump ([\w\.\-:]+) from ([\d\.]+) to ([\d\.]+)", title)
 if not match:
-    print("No dependency found in PR title.")
+    print("No dependency pattern matched in PR title.")
     exit(0)
 
 dep = match.group(1)
-print(f"Detected dependency: {dep}")
 
-# Determine risk level
+# Risk level detection
 level = "low"
 for risk_level in ["high", "medium", "low"]:
     if dep in risks.get(risk_level, []):
@@ -42,8 +53,6 @@ for risk_level in ["high", "medium", "low"]:
 label = f"risk: {level}"
 print(f"Applying label: {label}")
 
-requests.post(
-    f"{pr_url}/labels",
-    headers=headers,
-    json={"labels": [label]},
-)
+label_url = f"{pr_url}/labels"
+response = requests.post(label_url, headers=headers, json={"labels": [label]})
+print(f"Label added, response status: {response.status_code}")
