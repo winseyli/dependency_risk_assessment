@@ -53,6 +53,6 @@ for risk_level in ["high", "medium", "low"]:
 label = f"risk: {level}"
 print(f"Applying label: {label}")
 
-label_url = f"{pr_url}/labels"
+label_url = f"{GITHUB_API}/repos/{REPO}/issues/{pr_number}/labels"
 response = requests.post(label_url, headers=headers, json={"labels": [label]})
 print(f"Label added, response status: {response.status_code}")
